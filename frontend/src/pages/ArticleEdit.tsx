@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useApi } from '../hooks/use-api';
+import { toast } from 'react-hot-toast';
 
 interface ArticleForm {
   title: string;
@@ -10,28 +12,71 @@ const ArticleEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = Boolean(id);
+  const api = useApi();
 
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState<ArticleForm>({
     title: '',
     content: ''
   });
 
+  const fetchArticle = useCallback( async () => {
+    try {
+      const article = await api(`/api/articles/${id}`);
+      setFormData({
+        title: article.title,
+        content: article.content
+      });
+    } catch (error) {
+      console.error('Failed to fetch article:', error);
+      toast.error('Failed to load article');
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  }, [api, id, navigate]);
+
   useEffect(() => {
     if (isEditing) {
-      // Mock data - In real app, fetch article data here
-      setFormData({
-        title: 'Sample Article',
-        content: 'Sample content here...'
-      });
+      fetchArticle();
+    } else {
+      setLoading(false);
     }
-  }, [isEditing]);
+  }, [fetchArticle, isEditing]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    navigate('/dashboard');
+    
+    try {
+      if (isEditing) {
+        await api(`/api/articles/${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(formData)
+        });
+        toast.success('Article updated successfully');
+      } else {
+        await api('/api/articles', {
+          method: 'POST',
+          body: JSON.stringify(formData)
+        });
+        toast.success('Article created successfully');
+      }
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Failed to save article:', error);
+      toast.error(`Failed to ${isEditing ? 'update' : 'create'} article`);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+        <div className="text-gray-600">Loading article...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -51,7 +96,7 @@ const ArticleEdit = () => {
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
               />
             </div>
@@ -65,7 +110,7 @@ const ArticleEdit = () => {
                 rows={10}
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 required
               />
             </div>

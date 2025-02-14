@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { requireAuth, hasScopes } = require('./middleware/auth');
-const { nanoid } = require('nanoid');
 const articleDB = require('./db/articles');
+
+const generateId = () => {
+  return crypto.randomBytes(6).toString('hex');
+};
 
 // List articles
 router.get('/articles', requireAuth(), async (req, res) => {
@@ -51,7 +55,7 @@ router.post('/articles', requireAuth(['create:articles']), async (req, res) => {
     }
 
     const article = {
-      id: nanoid(6),
+      id: generateId(),
       ownerId: req.user.id,
       title,
       content,
@@ -120,10 +124,6 @@ router.patch('/articles/:id/published', requireAuth(['publish:articles']), async
 
     if (!article) {
       return res.status(404).json({ error: 'Article not found' });
-    }
-
-    if (article.ownerId !== req.user.id) {
-      return res.status(403).json({ error: 'Access denied' });
     }
 
     const updated = await articleDB.update(req.params.id, {

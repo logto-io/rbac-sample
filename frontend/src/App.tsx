@@ -11,16 +11,28 @@ import ArticleView from "./pages/ArticleView";
 import Callback from "./pages/Callback";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import { LogtoProvider } from "@logto/react";
+import { LogtoProvider, LogtoConfig } from "@logto/react";
+import { Toaster } from "react-hot-toast";
+import { API_RESOURCE, LOGTO_APP_ID, LOGTO_ENDPOINT } from "./config";
 
-const logtoConfig = {
-  appId: "i4y1dfprocho4wry453o2",
-  endpoint: "https://wwgsyp.logto.app/",
+const logtoConfig: LogtoConfig = {
+  appId: LOGTO_APP_ID,
+  endpoint: LOGTO_ENDPOINT,
+  resources: [API_RESOURCE],
+  scopes: [
+    'list:articles',
+    'create:articles',
+    'read:articles',
+    'update:articles',
+    'delete:articles',
+    'publish:articles',
+  ],
 };
 
 function App() {
   return (
     <LogtoProvider config={logtoConfig}>
+      <Toaster />
       <Router>
         <Routes>
           <Route path="/" element={<Landing />} />

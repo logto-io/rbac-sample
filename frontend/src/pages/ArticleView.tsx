@@ -1,35 +1,42 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useApi } from '../hooks/use-api';
+import { toast } from 'react-hot-toast';
 
 interface Article {
-  id: number;
+  id: string;
   title: string;
   content: string;
-  status: 'DRAFT' | 'PUBLISHED';
-  author: string;
+  isPublished: boolean;
+  ownerId: string;
   createdAt: string;
 }
 
 const ArticleView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const api = useApi();
   const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchArticle = useCallback(async () => {
+    try {
+      const data = await api(`/api/articles/${id}`);
+      setArticle(data);
+    } catch (error) {
+      console.error('Failed to fetch article:', error);
+      toast.error('Failed to load article');
+      navigate('/dashboard');
+    } finally {
+      setLoading(false);
+    }
+  }, [api, id, navigate]);
 
   useEffect(() => {
-    // Mock data - In real app, fetch article data here
-    setArticle({
-      id: Number(id),
-      title: 'Getting Started with RBAC',
-      content: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    fetchArticle();
+  }, [fetchArticle, id]);
 
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.`,
-      status: 'PUBLISHED',
-      author: 'John Doe',
-      createdAt: '2024-03-20'
-    });
-  }, [id]);
-
-  if (!article) {
+  if (loading || !article) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
         <div className="text-center">
@@ -51,9 +58,9 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
             ← Back to Dashboard
           </button>
           <span className={`px-2 text-xs leading-5 font-semibold rounded-full ${
-            article.status === 'PUBLISHED' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            article.isPublished ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
           }`}>
-            {article.status}
+            {article.isPublished ? 'PUBLISHED' : 'DRAFT'}
           </span>
         </div>
 
@@ -61,8 +68,7 @@ Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{article.title}</h1>
           
           <div className="flex items-center text-sm text-gray-500 mb-8">
-            <span className="mr-4">By {article.author}</span>
-            <span>{article.createdAt}</span>
+            <span>{new Date(article.createdAt).toLocaleDateString()}</span>
           </div>
 
           <div className="prose max-w-none">
