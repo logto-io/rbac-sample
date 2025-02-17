@@ -1,7 +1,5 @@
 const { createRemoteJWKSet, jwtVerify } = require("jose");
 
-const cmsApiResource = process.env.LOGTO_API_RESOURCE;
-
 const getTokenFromHeader = (headers) => {
   const { authorization } = headers;
   const bearerTokenIdentifier = "Bearer";
