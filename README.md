@@ -1,12 +1,15 @@
 # Logto RBAC Sample Application
 
-This repository contains the sample code for the blog post [RBAC in Practice](https://blog.logto.io/rbac-in-practice). It demonstrates how to implement Role-Based Access Control (RBAC) using Logto in a full-stack application.
+This repository contains the sample code for the blog posts
+- [RBAC in Practice](https://blog.logto.io/rbac-in-practice). It demonstrates how to implement Role-Based Access Control (RBAC) using Logto in a full-stack application.
+- [Empower your business: Connect AI tools to your existing service with access control](https://blog.logto.io/connect-ai-tools-to-your-service). Learn how to empower your business by securely connecting AI tools to your existing services using Personal Access Tokens and Model Context Protocol (MCP).
 
 ## Project Structure
 
-The project consists of two main parts:
+The project consists of three main parts:
 - `backend/`: A Node.js API server with RBAC implementation
 - `frontend/`: A React application demonstrating role-based UI and access control
+- `mcp-server/`: A Node.js program used for Model Context Protocol (MCP)
 
 ## Getting Started
 
@@ -57,3 +60,7 @@ The project consists of two main parts:
    ```
 
 The application will be available at `http://localhost:5173` (frontend) and the API at `http://localhost:3000` (backend).
+
+### MCP Server
+
+Refer to [MCP Server Quickstart](https://modelcontextprotocol.io/quickstart/server) to setup for Claude Desktop for testing.
