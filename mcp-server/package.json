@@ -10,7 +10,7 @@
     "build"
   ],
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.6.1",
+    "@modelcontextprotocol/sdk": "^1.24.3",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
